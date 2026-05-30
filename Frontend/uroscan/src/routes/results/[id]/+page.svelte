@@ -1,11 +1,48 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { ChevronLeft, Share2, Calendar } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import ResultPanel from '$lib/components/ResultPanel.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import { formatDate, formatTime } from '$lib/utils/format';
+	import type { Test, MarkerResult } from '$lib/types';
 
 	let { data } = $props();
+
+	let liveTest = $state<Test | null>(null);
+	let liveResults = $state<MarkerResult[]>([]);
+	let storageRead = $state(false);
+
+	// `loading` is true only while a live scan is waiting for sessionStorage.
+	const loading = $derived(data.scanLive && !storageRead);
+	const test = $derived(data.scanLive ? liveTest : data.test);
+	const results = $derived(data.scanLive ? liveResults : (data.results as MarkerResult[]));
+
+	onMount(() => {
+		if (!data.scanLive) return;
+		try {
+			const raw = sessionStorage.getItem('uroscan-live');
+			if (!raw) {
+				goto('/dashboard', { replaceState: true });
+				return;
+			}
+			const parsed = JSON.parse(raw) as { test: Test; results: MarkerResult[] };
+			liveTest = parsed.test;
+			liveResults = parsed.results;
+		} catch {
+			goto('/dashboard', { replaceState: true });
+		} finally {
+			storageRead = true;
+		}
+	});
+
+	function sampleLabel(iso: string): string {
+		const h = new Date(iso).getHours();
+		if (h < 12) return 'Morning sample';
+		if (h < 17) return 'Afternoon sample';
+		return 'Evening sample';
+	}
 
 	function back() {
 		if (history.length > 1) history.back();
@@ -13,7 +50,7 @@
 	}
 
 	async function share() {
-		const text = `My UroScan panel — ${data.test.result_summary}.`;
+		const text = `My UroScan panel — ${test?.result_summary}.`;
 		if (navigator.share) {
 			try {
 				await navigator.share({ title: 'UroScan reading', text });
@@ -22,41 +59,57 @@
 				/* user dismissed */
 			}
 		}
-		toast.success('Share link copied — your clinician can open the full panel.');
+		try {
+			await navigator.clipboard.writeText(text);
+			toast.success('Copied to clipboard.');
+		} catch {
+			toast.success('Share link copied — your clinician can open the full panel.');
+		}
 	}
 </script>
 
 <svelte:head><title>Reading · UroScan</title></svelte:head>
 
-<header class="flex items-center gap-2 px-4 pb-3.5 pt-2">
-	<button
-		type="button"
-		onclick={back}
-		aria-label="Back"
-		class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white"
-	>
-		<ChevronLeft size={20} class="text-slate-600" />
-	</button>
-	<div class="flex-1">
-		<div class="text-[17px] font-bold text-slate-900">Morning sample</div>
-		<div class="mono text-xs text-slate-400">
-			{formatDate(data.test.created_at)} · {formatTime(data.test.created_at)} · UroScan AI
+{#if loading}
+	<div class="flex min-h-[60dvh] items-center justify-center">
+		<span class="text-sm text-slate-400">Loading result…</span>
+	</div>
+{:else if !test}
+	<div class="flex min-h-[60dvh] flex-col items-center justify-center gap-4 px-5 text-center">
+		<p class="text-sm text-slate-400">Result not found.</p>
+		<Button variant="secondary" href="/dashboard">Back to dashboard</Button>
+	</div>
+{:else}
+	<header class="flex items-center gap-2 px-4 pb-3.5 pt-2">
+		<button
+			type="button"
+			onclick={back}
+			aria-label="Back"
+			class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white"
+		>
+			<ChevronLeft size={20} class="text-slate-600" />
+		</button>
+		<div class="flex-1">
+			<div class="text-[17px] font-bold text-slate-900">{sampleLabel(test.created_at)}</div>
+			<div class="mono text-xs text-slate-400">
+				{formatDate(test.created_at)} · {formatTime(test.created_at)} · UroScan AI
+			</div>
+		</div>
+	</header>
+
+	<div class="px-5">
+		<ResultPanel
+			status={test.status}
+			{results}
+			insights={test.ai_insights}
+			animate
+		/>
+
+		<div class="mt-4 flex gap-2.5">
+			<Button full variant="secondary" icon={Share2} onclick={share}>Share</Button>
+			<Button full icon={Calendar} onclick={() => toast.success('Saved to your timeline.')}>
+				Add to timeline
+			</Button>
 		</div>
 	</div>
-</header>
-
-<div class="px-5">
-	<ResultPanel
-		status={data.test.status}
-		results={data.results}
-		insights={data.test.ai_insights}
-		animate
-	/>
-
-	<div class="mt-4 flex gap-2.5">
-		<Button full variant="secondary" icon={Share2} onclick={share}>Share</Button>
-		<Button full icon={Calendar} onclick={() => toast.success('Saved to your timeline.')}>
-			Add to timeline
-		</Button>
-	</div>
-</div>
+{/if}
