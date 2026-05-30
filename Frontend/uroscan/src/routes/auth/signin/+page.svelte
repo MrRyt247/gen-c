@@ -77,6 +77,11 @@
 		<p class="mt-4 text-center text-[12.5px] text-slate-400">
 			Demo mode — no backend configured. Any details continue to the seeded account.
 		</p>
+	{:else}
+		<p class="mt-5 text-center text-[13px] text-slate-500">
+			New to UroScan?
+			<a href="/auth/signup" class="font-semibold text-blue-600">Create an account</a>
+		</p>
 	{/if}
 
 	<p class="mt-6 px-4 text-center text-[12px] leading-relaxed text-slate-400">

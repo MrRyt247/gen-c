@@ -73,8 +73,8 @@ const authGuard: Handle = async ({ event, resolve }) => {
 		redirect(303, `/auth/signin?redirectTo=${redirectTo}`);
 	}
 
-	// Bounce already-signed-in users away from auth pages.
-	if (user && event.url.pathname.startsWith('/auth/signin')) {
+	// Bounce already-signed-in users away from the auth pages.
+	if (user && event.url.pathname.startsWith('/auth/sign')) {
 		redirect(303, '/dashboard');
 	}
 
