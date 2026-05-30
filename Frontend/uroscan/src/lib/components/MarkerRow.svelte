@@ -17,7 +17,14 @@
 	style="border-color: var(--color-slate-100);"
 >
 	<div>
-		<div class="flex items-baseline gap-2">
+		<div class="flex items-center gap-2">
+			{#if r.color_detected}
+				<span
+					class="h-3.5 w-3.5 shrink-0 rounded-full border border-slate-200"
+					style="background: {r.color_detected};"
+					title="Detected pad colour"
+				></span>
+			{/if}
 			<span class="text-[15.5px] font-semibold text-slate-900">{meta.label}</span>
 			<span class="text-xs text-slate-400">{meta.category}</span>
 		</div>

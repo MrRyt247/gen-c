@@ -65,6 +65,13 @@ export function countByStatus(results: MarkerResult[]): StatusCounts {
 	);
 }
 
+/** Roll the worst marker status up into an overall test status. */
+export function overallStatus(results: MarkerResult[]): Status {
+	if (results.some((r) => r.status === 'abnormal')) return 'abnormal';
+	if (results.some((r) => r.status === 'borderline')) return 'borderline';
+	return 'normal';
+}
+
 /** Headline for an overall verdict ring, by worst-marker status. */
 export function overallHeadline(status: Status): string {
 	if (status === 'normal') return 'Looking good';
