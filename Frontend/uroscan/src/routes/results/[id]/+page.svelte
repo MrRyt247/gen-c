@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { ChevronLeft, Share2, Calendar } from '@lucide/svelte';
+	import { ChevronLeft, Share2, Calendar, CheckCircle2 } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import ResultPanel from '$lib/components/ResultPanel.svelte';
 	import ClaudeRecommendation from '$lib/components/ClaudeRecommendation.svelte';
@@ -43,6 +43,59 @@
 		if (h < 12) return 'Morning sample';
 		if (h < 17) return 'Afternoon sample';
 		return 'Evening sample';
+	}
+
+	let saved = $state(false);
+
+	$effect(() => {
+		if (test) saved = Boolean(localStorage.getItem(`uroscan-tl-${test.id}`));
+	});
+
+	async function addToTimeline() {
+		if (!test || saved) return;
+
+		// Try Supabase first (scan-live needs inserting; persisted tests are already there).
+		if (data.supabase && test.id === 'scan-live') {
+			try {
+				const newId = crypto.randomUUID();
+				const { error: e1 } = await data.supabase.from('tests').insert({
+					id: newId,
+					user_id: data.user?.id,
+					created_at: test.created_at,
+					status: test.status,
+					result_summary: test.result_summary,
+					ai_insights: test.ai_insights,
+					raw_analysis: test.raw_analysis
+				});
+				if (!e1) {
+					await data.supabase.from('results').insert(
+						results.map((r) => ({ ...r, id: crypto.randomUUID(), test_id: newId }))
+					);
+					localStorage.setItem(`uroscan-tl-${test.id}`, '1');
+					saved = true;
+					toast.success('Saved to your timeline!');
+					return;
+				}
+			} catch { /* fall through */ }
+		} else if (test.id !== 'scan-live') {
+			// Already persisted in Supabase — nothing to do.
+			saved = true;
+			localStorage.setItem(`uroscan-tl-${test.id}`, '1');
+			toast.success('Already in your timeline.');
+			return;
+		}
+
+		// localStorage fallback
+		try {
+			const existing: unknown[] = JSON.parse(localStorage.getItem('uroscan-timeline') ?? '[]');
+			existing.unshift({ test, results, savedAt: new Date().toISOString() });
+			localStorage.setItem('uroscan-timeline', JSON.stringify(existing.slice(0, 50)));
+			localStorage.setItem(`uroscan-tl-${test.id}`, '1');
+			saved = true;
+			toast.success('Saved to your device timeline.');
+		} catch {
+			toast.error('Could not save — storage may be full.');
+		}
 	}
 
 	function back() {
@@ -112,8 +165,8 @@
 
 		<div class="mt-5 flex gap-2.5">
 			<Button full variant="secondary" icon={Share2} onclick={share}>Share</Button>
-			<Button full icon={Calendar} onclick={() => toast.success('Saved to your timeline.')}>
-				Add to timeline
+			<Button full icon={saved ? CheckCircle2 : Calendar} variant={saved ? 'secondary' : 'primary'} onclick={addToTimeline}>
+				{saved ? 'Saved' : 'Add to timeline'}
 			</Button>
 		</div>
 	</div>
