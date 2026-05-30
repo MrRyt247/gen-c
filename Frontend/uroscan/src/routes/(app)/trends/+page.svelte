@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import AppHeader from '$lib/components/AppHeader.svelte';
 	import Badge from '$lib/components/Badge.svelte';
 	import TrendChart from '$lib/components/TrendChart.svelte';
@@ -17,6 +18,26 @@
 	};
 
 	let selected = $state<MarkerKey>('specific_gravity');
+	let localTests = $state<Test[]>([]);
+
+	onMount(() => {
+		try {
+			const raw = localStorage.getItem('uroscan-timeline');
+			if (!raw) return;
+			const entries = JSON.parse(raw) as { test: Test; results: MarkerResult[] }[];
+			// Reconstruct each local test with its results array attached.
+			localTests = entries.map((e) => ({ ...e.test, results: e.results }));
+		} catch { /* corrupt storage — ignore */ }
+	});
+
+	// Merge server + local-only tests, deduplicated by created_at, newest-first.
+	const allTests = $derived.by(() => {
+		const serverDates = new Set((data.tests as Test[]).map((t) => t.created_at));
+		const localOnly = localTests.filter((t) => !serverDates.has(t.created_at));
+		return [...(data.tests as Test[]), ...localOnly].sort(
+			(a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+		);
+	});
 
 	/** Categorical dipstick readings → an ordinal level for plotting. */
 	function toNumber(value: string): number {
@@ -31,7 +52,7 @@
 	}
 
 	// Oldest → newest, so the line reads left-to-right through time.
-	const chronological = $derived([...data.tests].reverse());
+	const chronological = $derived([...allTests].reverse());
 
 	function resultFor(test: Test, key: MarkerKey): MarkerResult | undefined {
 		return test.results?.find((r) => r.marker === key);

@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(npm run *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(node -e \"const pkg = require\\('./node_modules/@anthropic-ai/sdk/package.json'\\); console.log\\('anthropic sdk version:', pkg.version\\)\")"
     ]
   }
 }

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { X, Camera } from '@lucide/svelte';
+	import { X, Camera, ImageUp } from '@lucide/svelte';
 	import { prepareImage, sampleBox } from '$lib/scan/sample';
 	import { buildPanel, markerDetections, summarize } from '$lib/scan/analyze';
 	import { CLASS_TO_MARKER } from '$lib/scan/chart';
@@ -13,7 +13,8 @@
 	let phase = $state(-1);
 	let lit = $state(0);
 	let scanError = $state<string | null>(null);
-	let fileInput = $state<HTMLInputElement | undefined>();
+	let cameraInput = $state<HTMLInputElement | undefined>();
+	let uploadInput = $state<HTMLInputElement | undefined>();
 
 	const padColors = [
 		'#e9d24a', '#7cae5d', '#3f7bb6', '#caa15a', '#b85c8a',
@@ -162,12 +163,20 @@
 
 <svelte:head><title>Scan · UroScan</title></svelte:head>
 
-<!-- Hidden file input — `capture=environment` opens the rear camera on mobile. -->
+<!-- Camera input: opens rear camera directly on mobile. -->
 <input
-	bind:this={fileInput}
+	bind:this={cameraInput}
 	type="file"
 	accept="image/*"
 	capture="environment"
+	class="sr-only"
+	onchange={onFileSelected}
+/>
+<!-- Upload input: opens file picker / gallery (no capture constraint). -->
+<input
+	bind:this={uploadInput}
+	type="file"
+	accept="image/*"
 	class="sr-only"
 	onchange={onFileSelected}
 />
@@ -189,21 +198,41 @@
 		</div>
 
 		<div class="flex flex-1 flex-col items-center justify-center gap-5">
-			<!-- Camera / upload tap target -->
+			<!-- Primary action: camera -->
 			<button
 				type="button"
-				onclick={() => fileInput?.click()}
-				class="flex h-[220px] w-full max-w-[300px] flex-col items-center justify-center gap-4 rounded-[24px] border-2 border-dashed border-slate-200 bg-white shadow-sm transition-colors hover:border-blue-400 hover:bg-blue-50 active:scale-[0.98]"
+				onclick={() => cameraInput?.click()}
+				class="flex w-full max-w-[300px] items-center gap-4 rounded-[20px] bg-white px-5 py-5 shadow-sm transition-all hover:shadow-md active:scale-[0.98]"
+				style="border: 1.5px solid var(--color-slate-200);"
 			>
 				<div
-					class="flex h-16 w-16 items-center justify-center rounded-full"
+					class="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px]"
 					style="background: var(--color-blue-50);"
 				>
-					<Camera size={30} style="color: var(--color-blue-500);" />
+					<Camera size={24} style="color: var(--color-blue-500);" />
 				</div>
-				<div class="text-center">
-					<div class="text-[15px] font-semibold text-slate-800">Take a photo</div>
-					<div class="mt-0.5 text-[13px] text-slate-400">or tap to choose from gallery</div>
+				<div class="text-left">
+					<div class="text-[15px] font-semibold text-slate-900">Take a photo</div>
+					<div class="mt-0.5 text-[13px] text-slate-400">Open camera to capture the strip</div>
+				</div>
+			</button>
+
+			<!-- Secondary action: upload from gallery / files -->
+			<button
+				type="button"
+				onclick={() => uploadInput?.click()}
+				class="flex w-full max-w-[300px] items-center gap-4 rounded-[20px] bg-white px-5 py-5 shadow-sm transition-all hover:shadow-md active:scale-[0.98]"
+				style="border: 1.5px solid var(--color-slate-200);"
+			>
+				<div
+					class="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px]"
+					style="background: var(--color-teal-100);"
+				>
+					<ImageUp size={24} style="color: var(--color-teal-600);" />
+				</div>
+				<div class="text-left">
+					<div class="text-[15px] font-semibold text-slate-900">Upload image</div>
+					<div class="mt-0.5 text-[13px] text-slate-400">Choose from gallery or files</div>
 				</div>
 			</button>
 
@@ -239,13 +268,19 @@
 					style="background: var(--color-alert-bg); border: 1px solid #fca5a5;"
 				>
 					<p class="text-[13px] leading-relaxed text-red-700">{scanError}</p>
-					<button
-						type="button"
-						onclick={() => fileInput?.click()}
-						class="mt-2 text-[13px] font-semibold text-red-600 underline underline-offset-2"
-					>
-						Try again
-					</button>
+					<div class="mt-2 flex gap-3">
+						<button
+							type="button"
+							onclick={() => cameraInput?.click()}
+							class="text-[13px] font-semibold text-red-600 underline underline-offset-2"
+						>Camera</button>
+						<span class="text-red-300">·</span>
+						<button
+							type="button"
+							onclick={() => uploadInput?.click()}
+							class="text-[13px] font-semibold text-red-600 underline underline-offset-2"
+						>Upload</button>
+					</div>
 				</div>
 			{/if}
 		</div>
