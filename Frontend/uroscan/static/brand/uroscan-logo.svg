@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="56" viewBox="0 0 220 56" fill="none" role="img" aria-label="UroScan">
+  <defs>
+    <clipPath id="dropL">
+      <path d="M28 6C28 6 40 21.5 40 30C40 36.6 34.6 42 28 42C21.4 42 16 36.6 16 30C16 21.5 28 6 28 6Z"></path>
+    </clipPath>
+  </defs>
+  <path d="M28 6C28 6 40 21.5 40 30C40 36.6 34.6 42 28 42C21.4 42 16 36.6 16 30C16 21.5 28 6 28 6Z" fill="#1a4fd6"></path>
+  <g clip-path="url(#dropL)">
+    <rect x="12" y="31" width="32" height="14" fill="#2e63f0"></rect>
+    <rect x="12" y="29.2" width="32" height="2.1" fill="#2dd4c4"></rect>
+    <ellipse cx="24" cy="20" rx="2.8" ry="4.4" fill="#ffffff" opacity="0.30"></ellipse>
+  </g>
+  <text x="56" y="37" font-family="'SF Pro Display', -apple-system, sans-serif" font-size="29" font-weight="700" letter-spacing="-0.5" fill="#0f1b2d">Uro<tspan fill="#1a4fd6">Scan</tspan></text>
+</svg>
