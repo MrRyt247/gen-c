@@ -4,6 +4,7 @@
 	import { ChevronLeft, Share2, Calendar } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import ResultPanel from '$lib/components/ResultPanel.svelte';
+	import ClaudeRecommendation from '$lib/components/ClaudeRecommendation.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import { formatDate, formatTime } from '$lib/utils/format';
 	import type { Test, MarkerResult } from '$lib/types';
@@ -105,7 +106,11 @@
 			animate
 		/>
 
-		<div class="mt-4 flex gap-2.5">
+		{#if results.length}
+			<ClaudeRecommendation {results} status={test.status} testId={test.id} />
+		{/if}
+
+		<div class="mt-5 flex gap-2.5">
 			<Button full variant="secondary" icon={Share2} onclick={share}>Share</Button>
 			<Button full icon={Calendar} onclick={() => toast.success('Saved to your timeline.')}>
 				Add to timeline
