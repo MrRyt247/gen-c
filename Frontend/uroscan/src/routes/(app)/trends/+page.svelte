@@ -84,7 +84,7 @@
 
 <AppHeader eyebrow={data.user?.name ?? ''} title="Your trends" />
 
-<div class="px-5">
+<div class="px-5 lg:px-8">
 	<div class="no-scrollbar flex gap-2 overflow-x-auto pb-1">
 		{#each TREND_KEYS as key (key)}
 			<button
@@ -101,39 +101,40 @@
 	</div>
 
 	{#if points.length}
-		<section class="mt-4 rounded-[20px] border border-slate-200 bg-white p-[22px] shadow-md">
-			<div class="mb-[18px] flex items-start justify-between">
-				<div>
-					<div class="text-[13px] font-medium text-slate-500">{meta.label}</div>
-					<div class="mono mt-1 text-[28px] font-semibold text-slate-900">{latest?.value}</div>
+		<div class="lg:grid lg:grid-cols-[1fr_220px] lg:items-start lg:gap-6">
+			<!-- Chart -->
+			<section class="mt-4 rounded-[20px] border border-slate-200 bg-white p-[22px] shadow-md">
+				<div class="mb-[18px] flex items-start justify-between">
+					<div>
+						<div class="text-[13px] font-medium text-slate-500">{meta.label}</div>
+						<div class="mono mt-1 text-[28px] font-semibold text-slate-900">{latest?.value}</div>
+					</div>
+					<Badge status={latestStatus} />
 				</div>
-				<Badge status={latestStatus} />
-			</div>
-			<TrendChart
-				data={points}
-				{color}
-				band={REF[selected]}
-			/>
-			<div class="mono mt-2.5 flex justify-between text-[10.5px] text-slate-400">
-				<span>{formatDate(chronological[0].created_at)}</span>
-				<span>{formatDate(chronological.at(-1)!.created_at)}</span>
-			</div>
-		</section>
+				<TrendChart data={points} {color} band={REF[selected]} />
+				<div class="mono mt-2.5 flex justify-between text-[10.5px] text-slate-400">
+					<span>{formatDate(chronological[0].created_at)}</span>
+					<span>{formatDate(chronological.at(-1)!.created_at)}</span>
+				</div>
+			</section>
 
-		<div class="mt-3.5 grid grid-cols-2 gap-3">
-			<div class="rounded-[16px] border border-slate-200 bg-white p-4">
-				<div class="text-[12.5px] text-slate-500">Average</div>
-				<div class="mono mt-1 text-[22px] font-semibold text-slate-900">
-					{average.toFixed(decimals)}
+			<!-- Stats + about -->
+			<div>
+				<div class="mt-3.5 grid grid-cols-2 gap-3 lg:mt-4 lg:grid-cols-1">
+					<div class="rounded-[16px] border border-slate-200 bg-white p-4">
+						<div class="text-[12.5px] text-slate-500">Average</div>
+						<div class="mono mt-1 text-[22px] font-semibold text-slate-900">
+							{average.toFixed(decimals)}
+						</div>
+					</div>
+					<div class="rounded-[16px] border border-slate-200 bg-white p-4">
+						<div class="text-[12.5px] text-slate-500">Readings</div>
+						<div class="mono mt-1 text-[22px] font-semibold text-slate-900">{points.length}</div>
+					</div>
 				</div>
-			</div>
-			<div class="rounded-[16px] border border-slate-200 bg-white p-4">
-				<div class="text-[12.5px] text-slate-500">Readings</div>
-				<div class="mono mt-1 text-[22px] font-semibold text-slate-900">{points.length}</div>
+				<p class="mt-4 px-1 text-[13px] leading-relaxed text-slate-500">{meta.about}</p>
 			</div>
 		</div>
-
-		<p class="mt-4 px-1 text-[13px] leading-relaxed text-slate-500">{meta.about}</p>
 	{:else}
 		<p class="mt-10 text-center text-[15px] text-slate-500">No readings to chart yet.</p>
 	{/if}

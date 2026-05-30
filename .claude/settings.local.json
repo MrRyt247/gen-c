@@ -3,7 +3,10 @@
     "allow": [
       "Bash(npm run *)",
       "Bash(npm install *)",
-      "Bash(node -e \"const pkg = require\\('./node_modules/@anthropic-ai/sdk/package.json'\\); console.log\\('anthropic sdk version:', pkg.version\\)\")"
+      "Bash(node -e \"const pkg = require\\('./node_modules/@anthropic-ai/sdk/package.json'\\); console.log\\('anthropic sdk version:', pkg.version\\)\")",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Flavio\\\\Documents\\\\CodeFest\\\\gen-c\\\\Frontend\\\\uroscan\\\\src\" -Recurse -File)",
+      "Bash(Select-Object FullName)",
+      "Bash(Sort-Object FullName)"
     ]
   }
 }
