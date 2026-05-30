@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { ChevronLeft, Share2, Calendar, CheckCircle2 } from '@lucide/svelte';
+	import { ChevronLeft, Share2, Calendar, CheckCircle2, ImageDown, FileDown } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import ResultPanel from '$lib/components/ResultPanel.svelte';
 	import ClaudeRecommendation from '$lib/components/ClaudeRecommendation.svelte';
@@ -45,10 +45,17 @@
 		return 'Evening sample';
 	}
 
+	let exportTarget = $state<HTMLDivElement | undefined>();
+	let exporting = $state<'image' | 'pdf' | null>(null);
 	let saved = $state(false);
 
+	// scan-live always has id='scan-live'; use created_at to distinguish individual scans.
+	function tlKey(t: Test) {
+		return `uroscan-tl-${t.id === 'scan-live' ? t.created_at : t.id}`;
+	}
+
 	$effect(() => {
-		if (test) saved = Boolean(localStorage.getItem(`uroscan-tl-${test.id}`));
+		if (test) saved = Boolean(localStorage.getItem(tlKey(test)));
 	});
 
 	async function addToTimeline() {
@@ -71,7 +78,7 @@
 					await data.supabase.from('results').insert(
 						results.map((r) => ({ ...r, id: crypto.randomUUID(), test_id: newId }))
 					);
-					localStorage.setItem(`uroscan-tl-${test.id}`, '1');
+					localStorage.setItem(tlKey(test), '1');
 					saved = true;
 					toast.success('Saved to your timeline!');
 					return;
@@ -80,7 +87,7 @@
 		} else if (test.id !== 'scan-live') {
 			// Already persisted in Supabase — nothing to do.
 			saved = true;
-			localStorage.setItem(`uroscan-tl-${test.id}`, '1');
+			localStorage.setItem(tlKey(test), '1');
 			toast.success('Already in your timeline.');
 			return;
 		}
@@ -90,11 +97,57 @@
 			const existing: unknown[] = JSON.parse(localStorage.getItem('uroscan-timeline') ?? '[]');
 			existing.unshift({ test, results, savedAt: new Date().toISOString() });
 			localStorage.setItem('uroscan-timeline', JSON.stringify(existing.slice(0, 50)));
-			localStorage.setItem(`uroscan-tl-${test.id}`, '1');
+			localStorage.setItem(tlKey(test), '1');
 			saved = true;
 			toast.success('Saved to your device timeline.');
 		} catch {
 			toast.error('Could not save — storage may be full.');
+		}
+	}
+
+	function exportFilename(ext: string) {
+		return `uroscan-${test?.created_at.slice(0, 10) ?? 'result'}.${ext}`;
+	}
+
+	async function exportImage() {
+		if (!exportTarget || exporting) return;
+		exporting = 'image';
+		try {
+			const { toPng } = await import('html-to-image');
+			const dataUrl = await toPng(exportTarget, { cacheBust: true, pixelRatio: 2 });
+			const a = document.createElement('a');
+			a.href = dataUrl;
+			a.download = exportFilename('png');
+			a.click();
+		} catch {
+			toast.error('Could not export image.');
+		} finally {
+			exporting = null;
+		}
+	}
+
+	async function exportPdf() {
+		if (!exportTarget || exporting) return;
+		exporting = 'pdf';
+		try {
+			const [{ toPng }, { default: jsPDF }] = await Promise.all([
+				import('html-to-image'),
+				import('jspdf')
+			]);
+			const dataUrl = await toPng(exportTarget, { cacheBust: true, pixelRatio: 2 });
+			const img = new Image();
+			img.src = dataUrl;
+			await new Promise((r) => (img.onload = r));
+			// Use content dimensions as page size so nothing is cropped.
+			const w = img.naturalWidth / 2;
+			const h = img.naturalHeight / 2;
+			const pdf = new jsPDF({ orientation: h > w ? 'portrait' : 'landscape', unit: 'px', format: [w, h] });
+			pdf.addImage(dataUrl, 'PNG', 0, 0, w, h);
+			pdf.save(exportFilename('pdf'));
+		} catch {
+			toast.error('Could not export PDF.');
+		} finally {
+			exporting = null;
 		}
 	}
 
@@ -151,7 +204,7 @@
 		</div>
 	</header>
 
-	<div class="px-5">
+	<div bind:this={exportTarget} class="px-5">
 		<ResultPanel
 			status={test.status}
 			{results}
@@ -162,12 +215,18 @@
 		{#if results.length}
 			<ClaudeRecommendation {results} status={test.status} testId={test.id} />
 		{/if}
+	</div>
 
-		<div class="mt-5 flex gap-2.5">
-			<Button full variant="secondary" icon={Share2} onclick={share}>Share</Button>
-			<Button full icon={saved ? CheckCircle2 : Calendar} variant={saved ? 'secondary' : 'primary'} onclick={addToTimeline}>
-				{saved ? 'Saved' : 'Add to timeline'}
-			</Button>
-		</div>
+	<div class="mt-5 grid grid-cols-4 gap-2 px-5">
+		<Button full variant="secondary" icon={Share2} onclick={share}>Share</Button>
+		<Button full variant="secondary" icon={ImageDown} onclick={exportImage} class={exporting === 'image' ? 'opacity-60' : ''}>
+			{exporting === 'image' ? '…' : 'Image'}
+		</Button>
+		<Button full variant="secondary" icon={FileDown} onclick={exportPdf} class={exporting === 'pdf' ? 'opacity-60' : ''}>
+			{exporting === 'pdf' ? '…' : 'PDF'}
+		</Button>
+		<Button full icon={saved ? CheckCircle2 : Calendar} variant={saved ? 'secondary' : 'primary'} onclick={addToTimeline}>
+			{saved ? 'Saved' : 'Save'}
+		</Button>
 	</div>
 {/if}
