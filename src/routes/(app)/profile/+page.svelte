@@ -28,7 +28,7 @@
 
 <AppHeader eyebrow={name} title="Account" showBell={false} />
 
-<div class="px-5">
+<div class="px-5 lg:mx-auto lg:max-w-lg lg:px-0">
 	<div class="flex items-center gap-4 rounded-[20px] border border-slate-200 bg-white p-5 shadow-xs">
 		<div
 			class="flex h-[58px] w-[58px] items-center justify-center rounded-full text-[22px] font-bold"

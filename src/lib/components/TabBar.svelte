@@ -25,7 +25,7 @@
 </script>
 
 <nav
-	class="scrim fixed inset-x-0 bottom-0 z-40 mx-auto flex items-center justify-around border-t pb-[26px] pt-2"
+	class="scrim fixed inset-x-0 bottom-0 z-40 mx-auto flex items-center justify-around border-t pb-[26px] pt-2 lg:hidden"
 	style="max-width: var(--shell-max); border-color: var(--color-slate-100);"
 >
 	{#each left as t (t.href)}

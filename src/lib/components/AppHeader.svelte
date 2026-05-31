@@ -18,7 +18,7 @@
 
 <header class="flex items-center justify-between px-5 pb-3.5 pt-1.5">
 	<div class="flex items-center gap-[11px]">
-		<img src="/brand/uroscan-mark.svg" width="30" height="30" alt="UroScan" />
+		<img src="/brand/uroscan-mark.svg" width="30" height="30" alt="UroScan" class="lg:hidden" />
 		<div>
 			<div class="text-[12.5px] font-medium leading-none text-slate-400">{eyebrow}</div>
 			<div class="mt-[3px] text-[17px] font-bold tracking-[-0.01em] text-slate-900">{title}</div>

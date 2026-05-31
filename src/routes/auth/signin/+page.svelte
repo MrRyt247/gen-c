@@ -13,6 +13,7 @@
 <svelte:head><title>Sign in · UroScan</title></svelte:head>
 
 <div class="flex min-h-dvh flex-col justify-center px-6 py-12">
+<div class="mx-auto w-full max-w-sm">
 	<div class="mb-8 flex flex-col items-center text-center">
 		<img src="/brand/uroscan-logo.svg" height="34" alt="UroScan" class="h-[34px]" />
 		<p class="mt-5 text-[15px] leading-relaxed text-slate-500">
@@ -87,4 +88,5 @@
 	<p class="mt-6 px-4 text-center text-[12px] leading-relaxed text-slate-400">
 		UroScan flags and informs — it does not diagnose.
 	</p>
+</div>
 </div>

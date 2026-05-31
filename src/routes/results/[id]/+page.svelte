@@ -187,6 +187,7 @@
 		<Button variant="secondary" href="/dashboard">Back to dashboard</Button>
 	</div>
 {:else}
+	<div class="lg:mx-auto lg:max-w-2xl">
 	<header class="flex items-center gap-2 px-4 pb-3.5 pt-2">
 		<button
 			type="button"
@@ -228,5 +229,6 @@
 		<Button full icon={saved ? CheckCircle2 : Calendar} variant={saved ? 'secondary' : 'primary'} onclick={addToTimeline}>
 			{saved ? 'Saved' : 'Save'}
 		</Button>
+	</div>
 	</div>
 {/if}

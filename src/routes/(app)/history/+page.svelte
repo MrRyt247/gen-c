@@ -78,13 +78,13 @@
 
 <AppHeader eyebrow={data.user?.name ?? ''} title="History" />
 
-<div class="px-5">
+<div class="px-5 lg:px-8">
 	{#if allEntries.length}
 		{#each groups as [label, items] (label)}
 			<div class="mx-1 mb-3 mt-6 text-[17px] font-bold tracking-[-0.01em] text-slate-900">
 				{label}
 			</div>
-			<div class="flex flex-col gap-2.5">
+			<div class="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
 				{#each items as item (item.kind === 'server' ? item.test.id : item.entry.savedAt)}
 					{#if item.kind === 'server'}
 						<ReadingCard test={item.test} />

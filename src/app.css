@@ -163,7 +163,7 @@ body {
 	border-radius: 4px;
 }
 
-/* Centered mobile viewport — a phone-on-desktop frame, full-bleed on mobile. */
+/* Centered mobile viewport — phone-frame on tablet, full-bleed on desktop. */
 .app-shell {
 	width: 100%;
 	max-width: var(--shell-max);
@@ -175,6 +175,12 @@ body {
 @media (min-width: 480px) {
 	.app-shell {
 		box-shadow: var(--shadow-lg);
+	}
+}
+@media (min-width: 1024px) {
+	.app-shell {
+		max-width: none;
+		box-shadow: none;
 	}
 }
 
