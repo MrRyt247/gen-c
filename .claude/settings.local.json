@@ -6,7 +6,10 @@
       "Bash(node -e \"const pkg = require\\('./node_modules/@anthropic-ai/sdk/package.json'\\); console.log\\('anthropic sdk version:', pkg.version\\)\")",
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Flavio\\\\Documents\\\\CodeFest\\\\gen-c\\\\Frontend\\\\uroscan\\\\src\" -Recurse -File)",
       "Bash(Select-Object FullName)",
-      "Bash(Sort-Object FullName)"
+      "Bash(Sort-Object FullName)",
+      "PowerShell(robocopy \"C:\\\\Users\\\\Flavio\\\\Documents\\\\CodeFest\\\\gen-c\\\\Frontend\\\\uroscan\" \"C:\\\\Users\\\\Flavio\\\\Documents\\\\CodeFest\\\\gen-c\" /E /XD node_modules .svelte-kit /XF preview.log; if \\($LASTEXITCODE -le 7\\) { \"SUCCESS: exit code $LASTEXITCODE\" } else { \"FAILED: exit code $LASTEXITCODE\" })",
+      "PowerShell(Remove-Item *)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\Flavio\\\\Documents\\\\CodeFest\\\\gen-c\" -Force | Where-Object { $_.Name -ne 'node_modules' -and $_.Name -ne '.git' -and $_.Name -ne '.claude' } | Select-Object Name | Sort-Object Name)"
     ]
   }
 }

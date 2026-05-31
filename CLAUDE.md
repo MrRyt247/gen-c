@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-**UroScan** is a SvelteKit 5 mobile-first app that lets users scan urine dipstick test strips, detect 10 biomarkers via computer vision, and track results over time. The frontend lives in `Frontend/uroscan/`.
+**UroScan** is a SvelteKit 5 mobile-first app that lets users scan urine dipstick test strips, detect 10 biomarkers via computer vision, and track results over time.
 
 ## Commands
 
-All commands run from `Frontend/uroscan/`:
+All commands run from the repo root:
 
 ```bash
 npm run dev          # dev server (http://localhost:5173)
@@ -24,7 +24,7 @@ There is no test suite currently.
 
 ## Environment variables
 
-Create `Frontend/uroscan/.env.local`:
+Create `.env.local` at the repo root:
 
 ```
 PUBLIC_SUPABASE_URL=...
